@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101714">
+  <meta name="description" content="Bản tin kinh tế, thị trường và tài chính cá nhân — cập nhật dễ hiểu mỗi ngày.">
+  <title>Nhịp Vốn — Kinh tế &amp; Tài chính</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101714;
+      --panel: #171f1b;
+      --panel-2: #1c2621;
+      --line: #2a3830;
+      --text: #f2f4ec;
+      --muted: #97a69c;
+      --green: #b7f36b;
+      --green-dim: #26391e;
+      --red: #ff8278;
+      --amber: #f3c77b;
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar { border-bottom: 1px solid var(--line); background: rgba(16,23,20,.94); position: sticky; top: 0; z-index: 5; backdrop-filter: blur(14px); }
+    .nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.04em; font-size: 21px; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; color: #101714; background: var(--green); font-weight: 900; font-size: 18px; }
+    .brand span:last-child { color: var(--green); }
+    .nav-links { display: flex; gap: 27px; align-items: center; color: #b9c4bd; font-size: 13px; }
+    .nav-links a:hover, .nav-links a.active { color: var(--green); }
+    .nav-action { border: 1px solid #526644; border-radius: 999px; padding: 10px 15px; color: var(--green); background: transparent; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .nav-action:hover { background: var(--green-dim); }
+    .ticker { background: #141c18; border-bottom: 1px solid var(--line); overflow: hidden; }
+    .ticker-inner { min-height: 42px; display: flex; align-items: center; gap: 28px; white-space: nowrap; overflow-x: auto; scrollbar-width: none; color: var(--muted); font-size: 11px; }
+    .ticker-inner::-webkit-scrollbar { display: none; }
+    .ticker-label { color: var(--green); font-weight: 800; letter-spacing: .08em; }
+    .quote { display: inline-flex; align-items: center; gap: 8px; }
+    .quote b { color: var(--text); font-weight: 700; }
+    .up { color: var(--green); } .down { color: var(--red); }
+    .hero { padding: 65px 0 38px; display: grid; grid-template-columns: 1.25fr .75fr; gap: 45px; align-items: center; }
+    .eyebrow { color: var(--green); font-size: 11px; letter-spacing: .16em; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 9px; }
+    .eyebrow:before { content: ""; width: 20px; height: 1px; background: var(--green); }
+    h1 { margin: 18px 0 15px; max-width: 700px; font-size: clamp(39px, 5.7vw, 68px); line-height: 1.01; letter-spacing: -.065em; }
+    h1 em { color: var(--green); font-style: normal; }
+    .hero-copy { max-width: 560px; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .hero-buttons { display: flex; gap: 12px; margin-top: 25px; flex-wrap: wrap; }
+    .button { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 10px; padding: 12px 16px; display: inline-flex; align-items: center; gap: 9px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .button.primary { background: var(--green); color: #12200e; border-color: var(--green); }
+    .button.primary:hover { background: #c8fb8b; }
+    .button.secondary:hover { border-color: #617257; }
+    .hero-note { border-left: 1px solid #718a5d; padding: 4px 0 4px 21px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .hero-note strong { display: block; color: var(--text); font-size: 15px; margin-bottom: 5px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin: 35px 0 17px; }
+    .section-head h2 { margin: 0; font-size: 21px; letter-spacing: -.04em; }
+    .section-head p { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
+    .section-link { color: var(--green); font-size: 12px; font-weight: 700; }
+    .market-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+    .market-card, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+    .market-card { padding: 17px; min-height: 141px; position: relative; overflow: hidden; }
+    .market-card:after { content: ""; position: absolute; width: 95px; height: 95px; border-radius: 50%; background: rgba(183,243,107,.035); right: -24px; bottom: -46px; }
+    .card-top { color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+    .card-top .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .card-value { font-size: 25px; font-weight: 750; letter-spacing: -.04em; margin: 15px 0 6px; }
+    .card-foot { font-size: 11px; color: var(--muted); }
+    .card-foot strong { font-weight: 700; margin-right: 4px; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr); gap: 15px; margin-top: 15px; }
+    .panel { padding: 21px; }
+    .panel-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
+    .panel-title h3 { font-size: 15px; margin: 0 0 6px; letter-spacing: -.02em; }
+    .panel-title p { color: var(--muted); font-size: 11px; margin: 0; }
+    .periods { display: flex; gap: 4px; padding: 3px; border-radius: 9px; background: #111814; }
+    .periods button { background: transparent; border: 0; border-radius: 6px; padding: 6px 8px; color: var(--muted); font-size: 10px; cursor: pointer; }
+    .periods button.active { color: #14200f; background: var(--green); font-weight: 800; }
+    .chart-total { font-size: 29px; font-weight: 750; letter-spacing: -.05em; margin-top: 22px; }
+    .chart-total small { font-size: 11px; letter-spacing: 0; font-weight: 600; margin-left: 9px; }
+    .chart-wrap { height: 195px; margin-top: 11px; position: relative; }
+    canvas { width: 100%; height: 100%; display: block; }
+    .chart-labels { display: flex; justify-content: space-between; color: #738078; font-size: 9px; margin-top: 2px; }
+    .chart-caption { color: #75837a; font-size: 10px; margin-top: 12px; }
+    .sentiment { display: flex; align-items: center; gap: 16px; margin: 26px 0 20px; }
+    .gauge { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--green) 0 68%, #344038 68% 100%); position: relative; flex: 0 0 auto; }
+    .gauge:before { content: ""; position: absolute; inset: 7px; background: var(--panel); border-radius: 50%; }
+    .gauge span { position: relative; font-size: 24px; font-weight: 800; letter-spacing: -.05em; }
+    .sentiment-copy strong { display: block; font-size: 14px; margin-bottom: 5px; }
+    .sentiment-copy span { font-size: 11px; color: var(--muted); line-height: 1.6; }
+    .meter-row { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; margin: 12px 0 7px; }
+    .meter { height: 5px; background: #344038; border-radius: 5px; overflow: hidden; }
+    .meter i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+    .news-layout { display: grid; grid-template-columns: 1.2fr .8fr; gap: 15px; margin-top: 15px; }
+    .feature-story { min-height: 290px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; position: relative; background: radial-gradient(ellipse at 75% 15%, rgba(183,243,107,.17), transparent 38%), linear-gradient(145deg, #1e2b24, #151d19 70%); }
+    .feature-story:after { content: "₫"; position: absolute; right: 15px; top: 12px; font-size: 190px; line-height: 1; color: rgba(183,243,107,.055); font-weight: 800; transform: rotate(12deg); pointer-events: none; }
+    .story-tag { display: inline-flex; color: var(--green); font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; position: relative; z-index: 1; }
+    .feature-story h3 { max-width: 550px; font-size: clamp(22px, 3vw, 31px); line-height: 1.18; letter-spacing: -.045em; margin: 14px 0; position: relative; z-index: 1; }
+    .feature-story p { color: #a8b5ac; max-width: 520px; font-size: 12px; line-height: 1.7; margin: 0; position: relative; z-index: 1; }
+    .story-meta { color: #829087; font-size: 10px; margin-top: 25px; position: relative; z-index: 1; }
+    .news-list { display: grid; }
+    .news-item { padding: 5px 0 16px; border-bottom: 1px solid var(--line); margin-bottom: 13px; }
+    .news-item:last-child { border: 0; margin: 0; padding-bottom: 0; }
+    .news-item .story-tag { font-size: 9px; }
+    .news-item h4 { font-size: 13px; line-height: 1.5; margin: 7px 0; letter-spacing: -.01em; }
+    .news-item p { color: var(--muted); margin: 0; font-size: 10px; }
+    .watchlist { margin-top: 15px; }
+    .watchlist table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 11px; }
+    th { text-align: left; font-size: 9px; text-transform: uppercase; color: #718078; letter-spacing: .08em; font-weight: 700; padding: 0 9px 11px; }
+    td { padding: 11px 9px; border-top: 1px solid var(--line); }
+    td:first-child { font-weight: 750; }
+    td small { display: block; color: var(--muted); font-size: 9px; font-weight: 400; margin-top: 3px; }
+    td:last-child, th:last-child { text-align: right; }
+    .tag { border-radius: 99px; padding: 5px 8px; font-size: 9px; font-weight: 700; }
+    .tag.up-tag { background: #26391e; color: var(--green); }
+    .tag.down-tag { background: #3b2421; color: var(--red); }
+    footer { border-top: 1px solid var(--line); margin-top: 50px; padding: 24px 0 32px; color: #78867d; font-size: 10px; display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+    footer strong { color: #b5c0b8; }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: #e3f6d0; color: #14200f; border-radius: 10px; padding: 11px 16px; font-weight: 700; font-size: 12px; transition: .25s; z-index: 10; box-shadow: 0 8px 30px #0005; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 820px) {
+      .hero { grid-template-columns: 1fr; gap: 25px; padding-top: 48px; }
+      .hero-note { max-width: 500px; }
+      .market-grid { grid-template-columns: repeat(2, 1fr); }
+      .content-grid { grid-template-columns: 1fr; }
+      .news-layout { grid-template-columns: 1fr; }
+      .news-list { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    }
+    @media (max-width: 580px) {
+      .shell { width: min(100% - 28px, 1180px); }
+      .nav { min-height: 64px; }
+      .nav-links { display: none; }
+      .nav-action { padding: 9px 11px; font-size: 10px; }
+      .hero { padding: 42px 0 25px; }
+      h1 { font-size: 43px; }
+      .section-head { margin-top: 28px; }
+      .market-card { padding: 14px; min-height: 130px; }
+      .card-value { font-size: 22px; }
+      .panel { padding: 16px; }
+      .panel-title { flex-direction: column; }
+      .chart-wrap { height: 165px; }
+      .news-list { grid-template-columns: 1fr; gap: 0; }
+      .feature-story { min-height: 270px; }
+      .watchlist { overflow-x: auto; }
+      .watchlist table { min-width: 450px; }
+      footer { margin-top: 35px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell nav">
+      <a class="brand" href="#top" aria-label="Nhịp Vốn, về đầu trang"><span class="brand-mark">N</span><span>nhịp<span>vốn</span></span></a>
+      <nav class="nav-links" aria-label="Điều hướng chính">
+        <a class="active" href="#thi-truong">Thị trường</a><a href="#goc-nhin">Góc nhìn</a><a href="#tin-tuc">Tin tức</a><a href="#theo-doi">Danh mục</a>
+      </nav>
+      <button class="nav-action" id="subscribe">✳ &nbsp;Nhận bản tin</button>
+    </div>
+  </header>
+  <div class="ticker" aria-label="Bảng giá thị trường minh họa">
+    <div class="shell ticker-inner"><span class="ticker-label">THỊ TRƯỜNG</span><span class="quote"><b>VN-INDEX</b> 1,284.56 <strong class="up">▲ 0.82%</strong></span><span class="quote"><b>USD/VND</b> 25,180 <strong class="down">▼ 0.12%</strong></span><span class="quote"><b>VÀNG SJC</b> 82.40 tr <strong class="up">▲ 0.36%</strong></span><span class="quote"><b>BTC</b> 67,420 USD <strong class="up">▲ 1.24%</strong></span><span class="quote"><b>LÃI SUẤT TK</b> 4.8%/năm</span></div>
+  </div>
+  <main id="top" class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Kinh tế • Thị trường • Tài chính cá nhân</div>
+        <h1>Hiểu dòng tiền.<br><em>Đón nhịp tương lai.</em></h1>
+        <p class="hero-copy">Những chuyển động kinh tế đáng chú ý, được giải thích bằng ngôn ngữ gần gũi. Từ thị trường trong nước đến quyết định tài chính mỗi ngày.</p>
+        <div class="hero-buttons"><a class="button primary" href="#thi-truong">Khám phá thị trường <span aria-hidden="true">↗</span></a><a class="button secondary" href="#tin-tuc">Đọc tin mới nhất <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="hero-note"><strong>Bản tin sáng · 08:30</strong>Nhà đầu tư chờ số liệu lạm phát mới; nhóm ngân hàng và tiêu dùng dẫn nhịp giao dịch đầu phiên.<br><span style="color:#718078">Thứ Hai, 11 tháng 10 · Dữ liệu minh họa</span></div>
+    </section>
+
+    <section id="thi-truong" aria-labelledby="market-title">
+      <div class="section-head"><div><h2 id="market-title">Bức tranh thị trường</h2><p>Các chỉ số nổi bật trong phiên giao dịch</p></div><span class="section-link">Cập nhật mô phỏng ↗</span></div>
+      <div class="market-grid">
+        <article class="market-card"><div class="card-top"><span>VN-INDEX</span><i class="dot"></i></div><div class="card-value">1,284.56</div><div class="card-foot"><strong class="up">▲ 10.42 (0.82%)</strong> trong ngày</div></article>
+        <article class="market-card"><div class="card-top"><span>HNX-INDEX</span><i class="dot"></i></div><div class="card-value">242.18</div><div class="card-foot"><strong class="up">▲ 1.36 (0.56%)</strong> trong ngày</div></article>
+        <article class="market-card"><div class="card-top"><span>USD / VND</span><i class="dot" style="background:var(--amber);box-shadow:0 0 12px var(--amber)"></i></div><div class="card-value">25,180</div><div class="card-foot"><strong class="down">▼ 30 (0.12%)</strong> trong ngày</div></article>
+        <article class="market-card"><div class="card-top"><span>VÀNG SJC · / LƯỢNG</span><i class="dot" style="background:var(--amber);box-shadow:0 0 12px var(--amber)"></i></div><div class="card-value">82.40 tr</div><div class="card-foot"><strong class="up">▲ 300 nghìn (0.36%)</strong> trong ngày</div></article>
+      </div>
+      <div class="content-grid">
+        <article class="panel" aria-labelledby="chart-title">
+          <div class="panel-title"><div><h3 id="chart-title">Diễn biến VN-INDEX</h3><p>Chỉ số theo thời gian · dữ liệu minh họa</p></div><div class="periods" role="group" aria-label="Chọn khoảng thời gian"><button class="active" data-period="1D">1D</button><button data-period="1W">1W</button><button data-period="1M">1M</button><button data-period="1Y">1Y</button></div></div>
+          <div class="chart-total">1,284.56 <small class="up" id="chart-change">▲ 10.42 (0.82%)</small></div>
+          <div class="chart-wrap"><canvas id="marketChart" aria-label="Biểu đồ mô phỏng chỉ số VN-INDEX" role="img"></canvas></div>
+          <div class="chart-labels" id="chart-labels"><span>09:00</span><span>10:30</span><span>11:30</span><span>13:00</span><span>14:45</span></div>
+          <div class="chart-caption">Biểu đồ mang tính minh họa, không phải dữ liệu giao dịch theo thời gian thực.</div>
+        </article>
+        <aside class="panel" id="goc-nhin">
+          <div class="panel-title"><div><h3>Tâm lý thị trường</h3><p>Chỉ báo tham khảo hôm nay</p></div><span class="section-link">↗</span></div>
+          <div class="sentiment"><div class="gauge"><span>68</span></div><div class="sentiment-copy"><strong>Lạc quan thận trọng</strong><span>Dòng tiền cải thiện, nhưng nhà đầu tư vẫn theo dõi sát biến động tỷ giá.</span></div></div>
+          <div class="meter-row"><span>Đà tăng</span><strong>68%</strong></div><div class="meter"><i style="width:68%"></i></div>
+          <div class="meter-row"><span>Thanh khoản</span><strong>54%</strong></div><div class="meter"><i style="width:54%"></i></div>
+          <div class="meter-row"><span>Biến động</span><strong>32%</strong></div><div class="meter"><i style="width:32%;background:var(--amber)"></i></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="tin-tuc" aria-labelledby="news-title">
+      <div class="section-head"><div><h2 id="news-title">Kinh tế đáng chú ý</h2><p>Thông tin và góc nhìn giúp bạn nắm bắt bối cảnh</p></div><a class="section-link" href="#tin-tuc">Tất cả tin tức ↗</a></div>
+      <div class="news-layout">
+        <article class="panel feature-story"><div><span class="story-tag">● &nbsp;Phân tích nổi bật</span><h3>Lãi suất, tỷ giá và câu chuyện dòng vốn cuối năm</h3><p>Điều gì đang tác động đến quyết định của doanh nghiệp và người gửi tiết kiệm? Cùng nhìn vào ba tín hiệu quan trọng của nền kinh tế.</p></div><div class="story-meta">GÓC NHÌN KINH TẾ &nbsp;·&nbsp; 6 phút đọc &nbsp;·&nbsp; 11/10/2026</div></article>
+        <div class="panel news-list">
+          <article class="news-item"><span class="story-tag">VĨ MÔ</span><h4>Sức mua nội địa tăng, bán lẻ kỳ vọng mùa cao điểm</h4><p>Hôm nay &nbsp;·&nbsp; 4 phút đọc</p></article>
+          <article class="news-item"><span class="story-tag">DOANH NGHIỆP</span><h4>Nhóm ngân hàng công bố kế hoạch tăng vốn mới</h4><p>Hôm nay &nbsp;·&nbsp; 3 phút đọc</p></article>
+          <article class="news-item"><span class="story-tag">TÀI CHÍNH CÁ NHÂN</span><h4>Quỹ dự phòng: bắt đầu từ mục tiêu nhỏ, đều đặn</h4><p>Hôm qua &nbsp;·&nbsp; 5 phút đọc</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="theo-doi" class="panel watchlist" aria-labelledby="watch-title">
+      <div class="panel-title"><div><h3 id="watch-title">Danh mục theo dõi</h3><p>Một vài mã và tài sản được quan tâm · số liệu mô phỏng</p></div><a class="section-link" href="#theo-doi">Xem tất cả ↗</a></div>
+      <table><thead><tr><th>Tài sản</th><th>Giá gần nhất</th><th>Thay đổi</th><th>Xu hướng</th></tr></thead><tbody>
+        <tr><td>FPT<small>Công nghệ</small></td><td>138,200</td><td class="up">+1.62%</td><td><span class="tag up-tag">Tích cực</span></td></tr>
+        <tr><td>VCB<small>Ngân hàng</small></td><td>92,600</td><td class="up">+0.87%</td><td><span class="tag up-tag">Tích cực</span></td></tr>
+        <tr><td>HPG<small>Thép</small></td><td>27,450</td><td class="down">−0.54%</td><td><span class="tag down-tag">Điều chỉnh</span></td></tr>
+      </tbody></table>
+    </section>
+  </main>
+  <footer class="shell"><span><strong>nhịp vốn</strong> &nbsp;·&nbsp; Kinh tế dễ hiểu, quyết định vững vàng.</span><span>Dữ liệu trên trang chỉ mang tính minh họa và phục vụ mục đích tham khảo.</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite">Cảm ơn bạn! Tính năng đăng ký sẽ sớm ra mắt.</div>
+  <script>
+    const datasets = {
+      '1D': [42,45,43,48,46,54,50,56,53,60,58,57,64,62,67,63,71,69,73,68,76,72,80,78,82,77,86,82,89,85,91,87,96],
+      '1W': [35,39,37,45,42,48,46,44,53,50,59,54,58,55,64,61,59,69,66,74,70,77,75,73,83,79,89,85,94,91,97],
+      '1M': [40,44,43,39,47,45,52,49,57,54,50,60,58,66,62,65,61,72,68,74,71,69,80,77,84,79,88,85,92,89,98],
+      '1Y': [25,28,31,29,35,38,36,43,40,48,45,51,49,58,54,60,57,65,62,68,66,73,70,78,75,82,79,88,85,92,99]
+    };
+    const canvas = document.getElementById('marketChart');
+    const ctx = canvas.getContext('2d');
+    let selectedPeriod = '1D';
+    function drawChart() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const w = rect.width, h = rect.height;
+      const left = 2, right = 8, top = 8, bottom = 13;
+      const values = datasets[selectedPeriod];
+      const min = Math.min(...values) - 8, max = Math.max(...values) + 7;
+      const x = i => left + (i / (values.length - 1)) * (w - left - right);
+      const y = v => top + ((max - v) / (max - min)) * (h - top - bottom);
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = '#29362f'; ctx.lineWidth = 1;
+      for (let i = 0; i < 4; i++) { const gy = top + i * ((h - top - bottom) / 3); ctx.beginPath(); ctx.moveTo(left, gy); ctx.lineTo(w - right, gy); ctx.stroke(); }
+      const fill = ctx.createLinearGradient(0, top, 0, h);
+      fill.addColorStop(0, 'rgba(183,243,107,.22)'); fill.addColorStop(1, 'rgba(183,243,107,0)');
+      ctx.beginPath(); values.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+      ctx.lineTo(x(values.length - 1), h - bottom); ctx.lineTo(x(0), h - bottom); ctx.closePath(); ctx.fillStyle = fill; ctx.fill();
+      ctx.beginPath(); values.forEach((v, i) => i ? ctx.lineTo(x(i), y(v)) : ctx.moveTo(x(i), y(v)));
+      ctx.strokeStyle = '#b7f36b'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+      const lastX = x(values.length - 1), lastY = y(values[values.length - 1]);
+      ctx.beginPath(); ctx.arc(lastX, lastY, 4, 0, Math.PI * 2); ctx.fillStyle = '#b7f36b'; ctx.fill();
+      ctx.beginPath(); ctx.arc(lastX, lastY, 8, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(183,243,107,.3)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    document.querySelectorAll('.periods button').forEach(button => button.addEventListener('click', () => {
+      document.querySelector('.periods button.active').classList.remove('active');
+      button.classList.add('active'); selectedPeriod = button.dataset.period; drawChart();
+      document.getElementById('chart-change').textContent = selectedPeriod === '1D' ? '▲ 10.42 (0.82%)' : selectedPeriod === '1W' ? '▲ 24.18 (1.92%)' : selectedPeriod === '1M' ? '▲ 38.72 (3.11%)' : '▲ 126.40 (10.91%)';
+      document.getElementById('chart-labels').innerHTML = selectedPeriod === '1D' ? '<span>09:00</span><span>10:30</span><span>11:30</span><span>13:00</span><span>14:45</span>' : selectedPeriod === '1W' ? '<span>Thứ 2</span><span>Thứ 3</span><span>Thứ 4</span><span>Thứ 5</span><span>Thứ 6</span>' : selectedPeriod === '1M' ? '<span>Tuần 1</span><span>Tuần 2</span><span>Tuần 3</span><span>Tuần 4</span><span>Hiện tại</span>' : '<span>T.11</span><span>T.1</span><span>T.4</span><span>T.7</span><span>Hiện tại</span>';
+    }));
+    window.addEventListener('resize', drawChart);
+    drawChart();
+    let toastTimer;
+    document.getElementById('subscribe').addEventListener('click', () => {
+      const toast = document.getElementById('toast'); toast.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+    });
+  </script>
+</body>
+</html>
