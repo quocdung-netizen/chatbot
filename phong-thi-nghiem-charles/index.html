@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c2540">
+<title>Phòng thí nghiệm ảo – Khảo sát định luật Charles</title>
+<style>
+:root{--navy:#0c2540;--blue:#1768a7;--sky:#e9f5fc;--teal:#08a89f;--mint:#dff7f2;--ink:#18334b;--muted:#64798c;--line:#d9e6ee;--paper:#fff;--bg:#f1f6f9;--gold:#f4b844;--red:#d36555;--shadow:0 10px 32px #173e5b0d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:14px;line-height:1.45}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled,input:disabled,select:disabled{cursor:not-allowed;opacity:.5}
+.topbar{background:linear-gradient(110deg,#0c2540,#124a70 70%,#087e86);color:#fff;padding:22px clamp(18px,4vw,56px) 18px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;gap:14px;align-items:center}
+.brand-icon{width:48px;height:48px;border-radius:15px;background:#ffffff1b;display:grid;place-items:center;font-size:25px;border:1px solid #ffffff30}
+.topbar h1{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:#b9e5ec;margin:0 0 3px}
+.topbar h2{font-size:clamp(19px,2.1vw,27px);line-height:1.2;margin:0;font-weight:750}
+.head-status{display:flex;align-items:center;gap:9px;color:#e8f8f5;font-size:13px;background:#ffffff12;padding:10px 14px;border:1px solid #ffffff25;border-radius:999px;white-space:nowrap}
+.status-dot{width:9px;height:9px;border-radius:100%;background:#9ce6c9;box-shadow:0 0 0 4px #9ce6c920}
+main{max-width:1480px;margin:0 auto;padding:24px clamp(14px,3vw,40px) 60px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:18px}
+.toolbar p{margin:0;color:var(--muted)}
+.toolbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.button{border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink);padding:9px 13px;font-weight:650;transition:.18s;box-shadow:0 1px 2px #16344a08}
+.button:hover:not(:disabled){transform:translateY(-1px);border-color:#96bdcf;box-shadow:0 5px 14px #173e5b12}
+.button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.button.teal{background:var(--teal);border-color:var(--teal);color:#fff}
+.button.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.button.warn{color:#9d473c;border-color:#efd7d2;background:#fffafa}
+.button.small{font-size:12px;padding:6px 9px;border-radius:8px}
+.button.icon{width:34px;height:34px;padding:0;display:grid;place-items:center}
+.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(340px,.78fr);align-items:start;gap:18px}
+.column{display:grid;gap:18px}
+.panel{background:var(--paper);border:1px solid #e1eaf0;border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.panel-head{padding:17px 19px 13px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.panel-title{display:flex;gap:11px;align-items:flex-start}
+.panel-number{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;background:var(--sky);color:var(--blue);font-weight:800;font-size:12px;flex:none}
+.panel h3{margin:0;font-size:16px;line-height:1.25}
+.panel-sub{margin:3px 0 0;color:var(--muted);font-size:12px}
+.panel-body{padding:0 19px 19px}
+.sim-panel{background:#f9fcfe}
+.scene-head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:#eaf7f4;color:#168077;font-size:11px;font-weight:750}
+.badge.pending{background:#fff5df;color:#9b6a09}
+.scene-wrap{margin:0 15px 14px;border:1px solid #d8e8f1;background:linear-gradient(180deg,#f4fbff,#eaf5fa);border-radius:13px;overflow:hidden;position:relative}
+#scene{display:block;width:100%;aspect-ratio:920/520}
+.scene-caption{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:0 18px 16px;color:var(--muted);font-size:11px}
+.caption-legend{display:flex;gap:13px;flex-wrap:wrap}
+.legend-item{display:flex;gap:5px;align-items:center}
+.legend-swatch{width:9px;height:9px;border-radius:50%;background:#46a7d7}
+.legend-swatch.heat{background:#f3a540}
+.legend-swatch.water{background:#7fc8e4}
+.mode-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px}
+.mode-button{border:1px solid var(--line);background:#f9fbfc;border-radius:9px;padding:8px 7px;color:var(--muted);font-weight:700;font-size:11px}
+.mode-button.active{background:#e8f6f5;color:#087d77;border-color:#a5dfd8}
+.control-group{border-top:1px solid #edf1f4;padding-top:14px;margin-top:13px}
+.control-label{font-weight:750;font-size:12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.control-label span:last-child{color:var(--muted);font-weight:500}
+.field-row{display:flex;gap:8px;align-items:center}
+.field-row input[type=number]{width:100%;min-width:0}
+input[type=number],select{border:1px solid #ccdbe4;border-radius:9px;background:#fff;padding:9px 10px;color:var(--ink);outline:none}
+input[type=number]:focus,select:focus{border-color:#6fb8ce;box-shadow:0 0 0 3px #3ca5c31c}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.range-meta{display:flex;justify-content:space-between;color:#8292a0;font-size:10px;margin-top:-1px}
+.quick-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:7px}
+.quick{border:1px solid #dbe7ec;background:#fff;border-radius:8px;padding:7px 3px;color:#456074;font-weight:700;font-size:11px}
+.quick:hover{background:#eaf7f4;border-color:#a8ddd6;color:#087d77}
+.control-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.control-grid .button{font-size:11px;padding:9px 6px}
+.control-grid .wide{grid-column:1/-1}
+.toggle-line{display:flex;justify-content:space-between;align-items:center;color:#526a7a;font-size:12px;padding:2px 0}
+.switch{appearance:none;width:37px;height:21px;border-radius:20px;background:#cbd7df;position:relative;cursor:pointer;transition:.2s;flex:none}
+.switch:after{content:"";position:absolute;width:15px;height:15px;background:white;border-radius:50%;left:3px;top:3px;box-shadow:0 1px 3px #24374630;transition:.2s}
+.switch:checked{background:var(--teal)}
+.switch:checked:after{left:19px}
+.note{background:#f1f8fb;border-left:3px solid #71bbd1;border-radius:5px;padding:8px 10px;color:#567184;font-size:11px;margin-top:11px}
+.reading-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.reading{border:1px solid #e6edf1;border-radius:10px;padding:9px 10px;background:#fcfdfe;min-width:0}
+.reading-label{font-size:10px;color:#73889a;margin-bottom:3px}
+.reading-value{font-size:17px;font-weight:760;color:#173b57;white-space:nowrap}
+.reading-value small{font-size:10px;color:#7890a1;font-weight:600}
+.reading.highlight{background:#effaf8;border-color:#c9ece6}
+.reading.highlight .reading-value{color:#078278}
+.physics-note{margin-top:10px;padding:9px 10px;border-radius:9px;background:#f3f7fa;color:#64798c;font-size:11px}
+.wide-panel{margin-top:18px}
+.table-wrap{overflow-x:auto;border:1px solid #e5edf1;border-radius:10px}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-variant-numeric:tabular-nums}
+th{background:#f4f8fa;color:#587084;font-size:10px;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:10px 11px}
+td{border-top:1px solid #edf1f4;padding:9px 11px;font-size:12px}
+td:first-child{font-weight:700;color:#36566b}
+.empty-row td{text-align:center;color:#8495a3;padding:22px 10px}
+.data-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}
+.summary{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#61798b}
+.summary b{color:#1d4056}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid transparent;padding:6px 9px;background:transparent;border-radius:8px;color:#718595;font-size:11px;font-weight:700}
+.tab.active{background:#eaf5fa;color:#1768a7;border-color:#d6eaf3}
+.chart-wrap{position:relative;height:290px;border:1px solid #edf1f4;border-radius:10px;background:#fff}
+.chart{width:100%;height:100%;display:block}
+.chart-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 9px}
+.chart-toggles{display:flex;gap:11px;align-items:center;color:#61788a;font-size:11px}
+.checkline{display:flex;gap:5px;align-items:center}
+.checkline input{accent-color:var(--teal)}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;color:#718494;font-size:10px;margin-top:8px}
+.line-key{width:15px;border-top:2px solid #169aa3}
+.line-key.fit{border-color:#ed9c35;border-top-style:dashed}
+.line-key.points{height:8px;width:8px;border:0;border-radius:50%;background:#2678bd}
+.line-key.ratio{border-color:#8658b4}
+.analysis-box{display:grid;gap:7px}
+.analysis-item{display:grid;grid-template-columns:24px 1fr;gap:8px;padding:9px 10px;background:#f8fbfc;border:1px solid #edf2f4;border-radius:9px;font-size:12px}
+.analysis-mark{color:var(--teal);font-weight:900}
+.analysis-item strong{display:block;color:#29485d;margin-bottom:2px}
+.report-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.report-card{border:1px solid #e6edf1;border-radius:10px;padding:11px;background:#fbfdfe}
+.report-card h4{font-size:12px;margin:0 0 5px;color:#28516b}
+.report-card p{font-size:11px;margin:0;color:#657d8e}
+.mode-description{padding:9px 10px;background:#f3f9fc;border:1px solid #e1eef4;border-radius:9px;color:#557183;font-size:11px;margin-bottom:10px}
+.challenge-box{border:1px solid #dcebe9;background:#f6fcfb;border-radius:10px;padding:12px;margin-top:10px}
+.challenge-box label{display:block;font-size:11px;color:#577083;font-weight:700;margin:7px 0 5px}
+.challenge-result{font-size:11px;color:#536d7c;margin-top:9px;min-height:17px}
+.quiz{border-top:1px solid #ebf0f3;margin-top:14px;padding-top:13px}
+.quiz-question{font-weight:700;font-size:12px;margin-bottom:8px}
+.quiz-options{display:grid;gap:5px}
+.quiz-option{display:flex;gap:8px;align-items:flex-start;padding:7px 8px;border:1px solid #e5edf1;border-radius:8px;font-size:11px;cursor:pointer}
+.quiz-option:hover{background:#f6fafb}
+.quiz-option input{margin:2px 0 0;accent-color:var(--teal)}
+.quiz-feedback{font-size:11px;margin-top:8px;color:#607889;min-height:16px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#12334b;color:#fff;padding:10px 15px;border-radius:10px;box-shadow:0 10px 30px #0c254044;opacity:0;pointer-events:none;transition:.25s;z-index:20;font-size:12px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer-note{text-align:center;color:#81919e;font-size:10px;margin-top:18px}
+@media(max-width:1050px){.workspace{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}}
+@media(max-width:820px){.workspace{grid-template-columns:1fr}.column{display:contents}.workspace>.column:first-child{display:grid}.workspace>.column:last-child{display:grid}.wide-panel{margin-top:16px}}
+@media(max-width:540px){.topbar{align-items:flex-start;padding:17px 15px}.brand-icon{width:41px;height:41px}.head-status{font-size:10px;padding:8px}.toolbar{align-items:flex-start;flex-direction:column}.panel-head{padding:14px 14px 11px}.panel-body{padding:0 14px 14px}.scene-wrap{margin:0 8px 12px}.scene-caption{padding:0 12px 12px;align-items:flex-start;flex-direction:column}.reading-grid{gap:6px}.reading-value{font-size:15px}.chart-wrap{height:240px}.report-grid{grid-template-columns:1fr}.wide-panel .panel-head{align-items:flex-start;flex-direction:column}}
+@media print{body{background:#fff}.topbar{background:#fff;color:#173b57;padding:10px 0;border-bottom:2px solid #1768a7}.topbar h1{color:#3f768e}.head-status,.toolbar,.control-panel,.tabs,.chart-toolbar,.actions,.button,.mode-row,.quiz,.challenge-box,.footer-note,.scene-caption{display:none!important}main{padding:10px 0;max-width:none}.workspace{display:block}.panel{box-shadow:none;break-inside:avoid;margin-bottom:12px}.wide-panel{margin-top:12px}.scene-wrap{margin:0 12px}.column{display:block}.panel-body{padding-bottom:10px}.chart-wrap{height:230px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon" aria-hidden="true">⚗</div>
+    <div><h1>Phòng thí nghiệm vật lí ảo</h1><h2>Khảo sát định luật Charles</h2></div>
+  </div>
+  <div class="head-status"><span class="status-dot" id="statusDot"></span><span id="statusText">Chưa bắt đầu</span></div>
+</header>
+<main>
+  <div class="toolbar">
+    <p>Khảo sát quan hệ giữa thể tích và nhiệt độ tuyệt đối khi áp suất không đổi.</p>
+    <div class="toolbar-actions">
+      <button class="button small" id="printDataBtn">In bảng số liệu</button>
+      <button class="button small" id="helpBtn">Hướng dẫn nhanh</button>
+    </div>
+  </div>
+  <div class="workspace">
+    <div class="column">
+      <section class="panel sim-panel" aria-labelledby="simTitle">
+        <div class="panel-head">
+          <div class="panel-title"><span class="panel-number">01</span><div><h3 id="simTitle">Mô hình thí nghiệm</h3><p class="panel-sub">Xi lanh, pít-tông và bình điều nhiệt mô phỏng</p></div></div>
+          <div class="scene-head-right"><span class="badge pending" id="equilibriumBadge">Đang chờ bắt đầu</span><button class="button icon small" id="zoomOut" title="Thu nhỏ mô hình" aria-label="Thu nhỏ mô hình">−</button><button class="button icon small" id="zoomIn" title="Phóng to mô hình" aria-label="Phóng to mô hình">+</button></div>
+        </div>
+        <div class="scene-wrap"><canvas id="scene" aria-label="Mô hình chuyển động của pít-tông và các phân tử khí"></canvas></div>
+        <div class="scene-caption">
+          <div class="caption-legend"><span class="legend-item"><i class="legend-swatch"></i>Khí trong xi lanh</span><span class="legend-item"><i class="legend-swatch water"></i>Nước điều nhiệt</span><span class="legend-item"><i class="legend-swatch heat"></i>Bộ phận gia nhiệt</span></div>
+          <span>Các chấm chuyển động chỉ minh họa phân tử khí.</span>
+        </div>
+      </section>
+      <section class="panel wide-panel">
+        <div class="panel-head"><div class="panel-title"><span class="panel-number">04</span><div><h3>Bảng thu thập số liệu</h3><p class="panel-sub">Chỉ ghi phép đo khi nhiệt độ khí đã ổn định</p></div></div><span class="badge" id="sampleCount">0 phép đo</span></div>
+        <div class="panel-body">
+          <div class="table-wrap"><table id="dataTable"><thead><tr><th>Lần đo</th><th>Nhiệt độ (°C)</th><th>Nhiệt độ (K)</th><th>Thể tích (mL)</th><th>Áp suất (kPa)</th><th>V/T (mL/K)</th><th></th></tr></thead><tbody id="dataBody"><tr class="empty-row"><td colspan="7">Chưa có số liệu. Bắt đầu thí nghiệm, chọn nhiệt độ và ghi phép đo đầu tiên.</td></tr></tbody></table></div>
+          <div class="data-footer"><div class="summary"><span>Trung bình V/T: <b id="meanRatio">—</b></span><span>Độ lệch tương đối: <b id="ratioSpread">—</b></span></div>
+            <div class="actions"><button class="button small" id="recordBtn" disabled>Ghi số liệu</button><button class="button small" id="exportCsvBtn">Xuất tệp số liệu (.csv)</button><button class="button small" id="clearDataBtn">Xóa toàn bộ</button></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel wide-panel">
+        <div class="panel-head"><div class="panel-title"><span class="panel-number">05</span><div><h3>Đồ thị và phân tích</h3><p class="panel-sub">Điểm đo thực nghiệm, đường lí thuyết và hồi quy tuyến tính</p></div></div>
+          <div class="tabs" role="tablist"><button class="tab active" data-chart="volumeK">V theo T (K)</button><button class="tab" data-chart="volumeC">V theo t (°C)</button><button class="tab" data-chart="ratio">V/T theo T</button></div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-toolbar">
+            <div class="chart-toggles"><label class="checkline"><input type="checkbox" id="showTheory" checked> Đường lí thuyết</label><label class="checkline"><input type="checkbox" id="showFit" checked> Hồi quy đo</label></div>
+            <div class="actions"><button class="button icon small" id="chartZoomOut" aria-label="Thu nhỏ đồ thị">−</button><button class="button icon small" id="chartZoomIn" aria-label="Phóng to đồ thị">+</button></div>
+          </div>
+          <div class="chart-wrap"><canvas class="chart" id="chart"></canvas></div>
+          <div class="chart-legend"><span class="legend-item"><i class="line-key points"></i>Số liệu đo</span><span class="legend-item"><i class="line-key"></i>Đường lí thuyết</span><span class="legend-item"><i class="line-key fit"></i>Hồi quy tuyến tính</span><span id="fitEquation">Chưa đủ điểm để hồi quy.</span></div>
+          <div style="margin-top:14px"><div class="analysis-box" id="analysisBox"></div></div>
+        </div>
+      </section>
+    </div>
+    <div class="column">
+      <section class="panel control-panel">
+        <div class="panel-head"><div class="panel-title"><span class="panel-number">02</span><div><h3>Bảng điều khiển thiết bị</h3><p class="panel-sub">Chọn cách tiến hành và thay đổi trạng thái</p></div></div></div>
+        <div class="panel-body">
+          <div class="mode-row" role="group" aria-label="Chế độ thí nghiệm"><button class="mode-button active" data-mode="guided">Có hướng dẫn</button><button class="mode-button" data-mode="free">Tự do</button><button class="mode-button" data-mode="challenge">Thử thách</button></div>
+          <div class="mode-description" id="modeDescription">Bắt đầu ở 20°C, đo trạng thái ban đầu rồi lần lượt thay đổi nhiệt độ và ghi số liệu.</div>
+          <div class="control-label"><span>Nhiệt độ mục tiêu</span><span id="targetLabel">20,0 °C</span></div>
+          <input id="tempSlider" type="range" min="0" max="80" step="0.5" value="20" disabled aria-label="Điều chỉnh nhiệt độ">
+          <div class="range-meta"><span>0°C</span><span>80°C</span></div>
+          <div class="field-row" style="margin-top:8px"><input type="number" id="tempInput" min="0" max="80" step="0.1" value="20" disabled aria-label="Nhập nhiệt độ Celsius"><span>°C</span></div>
+          <div class="quick-row"><button class="quick" data-temp="0" disabled>0°C</button><button class="quick" data-temp="20" disabled>20°C</button><button class="quick" data-temp="40" disabled>40°C</button><button class="quick" data-temp="60" disabled>60°C</button><button class="quick" data-temp="80" disabled>80°C</button></div>
+          <div class="control-group">
+            <div class="control-grid">
+              <button class="button primary wide" id="startBtn">Bắt đầu thí nghiệm</button>
+              <button class="button" id="heatBtn" disabled>Tăng nhiệt độ +5°C</button><button class="button" id="coolBtn" disabled>Giảm nhiệt độ −5°C</button>
+              <button class="button" id="pauseBtn" disabled>Tạm dừng</button><button class="button" id="resumeBtn" disabled>Tiếp tục</button>
+              <button class="button teal wide" id="measureBtn" disabled>Đo thể tích</button>
+              <button class="button warn wide" id="resetBtn">Đặt lại thí nghiệm</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span>Chế độ số liệu</span></div>
+            <select id="dataMode" aria-label="Chế độ số liệu"><option value="ideal">Lí tưởng — không sai số</option><option value="experimental">Thực nghiệm — có sai số cảm biến</option></select>
+            <div class="note">Ở chế độ thực nghiệm, cảm biến nhiệt độ (±0,15°C), thể tích (±0,05 mL) và áp suất (±0,04 kPa) được làm tròn theo độ phân giải thiết bị.</div>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span>Thông số ban đầu</span><span id="settingsState">Có thể chỉnh trước khi bắt đầu</span></div>
+            <div class="field-row"><input type="number" id="initialPressure" min="50" max="300" step="0.1" value="101.3" aria-label="Áp suất ban đầu"><span>kPa</span></div>
+            <div class="field-row" style="margin-top:7px"><input type="number" id="initialVolume" min="5" max="100" step="0.1" value="30" aria-label="Thể tích ban đầu"><span>mL</span></div>
+            <div class="field-row" style="margin-top:7px"><input type="number" id="initialTemp" min="0" max="80" step="0.1" value="20" aria-label="Nhiệt độ ban đầu"><span>°C</span></div>
+            <button class="button small" id="applySettings" style="margin-top:8px;width:100%">Áp dụng thông số ban đầu</button>
+          </div>
+          <div class="control-group">
+            <div class="toggle-line"><span>Hoạt ảnh phân tử</span><input class="switch" id="moleculeToggle" type="checkbox" checked aria-label="Bật hoặc tắt hoạt ảnh phân tử"></div>
+          </div>
+        </div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="panel-number">03</span><div><h3>Đồng hồ đo</h3><p class="panel-sub">Giá trị tức thời của trạng thái khí</p></div></div></div>
+        <div class="panel-body">
+          <div class="reading-grid">
+            <div class="reading"><div class="reading-label">Nhiệt độ Celsius</div><div class="reading-value"><span id="readC">20,0</span> <small>°C</small></div></div>
+            <div class="reading"><div class="reading-label">Nhiệt độ tuyệt đối</div><div class="reading-value"><span id="readK">293,15</span> <small>K</small></div></div>
+            <div class="reading highlight"><div class="reading-label">Thể tích khí</div><div class="reading-value"><span id="readV">30,00</span> <small>mL</small></div></div>
+            <div class="reading"><div class="reading-label">Áp suất khí</div><div class="reading-value"><span id="readP">101,3</span> <small>kPa</small></div></div>
+            <div class="reading"><div class="reading-label">Lượng khí</div><div class="reading-value"><span id="readN">0,00125</span> <small>mol</small></div></div>
+            <div class="reading highlight"><div class="reading-label">Tỉ số V/T</div><div class="reading-value"><span id="readRatio">0,1023</span> <small>mL/K</small></div></div>
+            <div class="reading"><div class="reading-label">Vị trí pít-tông</div><div class="reading-value"><span id="readPiston">—</span> <small>mm</small></div></div>
+            <div class="reading"><div class="reading-label">Trạng thái nhiệt</div><div class="reading-value" style="font-size:14px"><span id="readStable">Ổn định</span></div></div>
+          </div>
+          <div class="physics-note">pV = nRT · p và n giữ không đổi. T(K) = t(°C) + 273,15.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <section class="panel wide-panel">
+    <div class="panel-head"><div class="panel-title"><span class="panel-number">06</span><div><h3>Báo cáo và đánh giá thí nghiệm</h3><p class="panel-sub">Nhận xét được tạo từ các số liệu đã ghi</p></div></div>
+      <div class="actions"><button class="button small" id="exportReportBtn">Tải báo cáo HTML</button><button class="button small" id="printReportBtn">In báo cáo</button></div>
+    </div>
+    <div class="panel-body">
+      <div class="analysis-box" id="reportAnalysis"></div>
+      <div class="report-grid">
+        <div class="report-card"><h4>Cơ sở lí thuyết</h4><p>Khi áp suất của một lượng khí xác định không đổi: V/T = hằng số; V₁/T₁ = V₂/T₂. Nhiệt độ T luôn tính theo Kelvin.</p></div>
+        <div class="report-card"><h4>Kiểm soát thí nghiệm</h4><p>Xi lanh chứa lượng khí không đổi. Pít-tông lí tưởng có tải trọng ngoài cố định, chuyển động không ma sát để giữ áp suất không đổi.</p></div>
+        <div class="report-card"><h4>Thông số đang dùng</h4><p id="reportSettings">101,3 kPa · 30,00 mL · 20,0°C</p></div>
+        <div class="report-card"><h4>Trạng thái dữ liệu</h4><p id="reportDataState">Chưa có phép đo; báo cáo sẽ ghi đúng trạng thái dữ liệu hiện tại.</p></div>
+      </div>
+      <div class="quiz">
+        <div class="control-label"><span>Kiểm tra kiến thức</span><span id="quizProgress">Câu 1 / 20</span></div>
+        <div class="mode-row" style="margin-top:8px"><button class="mode-button active" data-quiz-filter="all">Tất cả câu hỏi</button><button class="mode-button" data-quiz-filter="basic">Nhận biết, thông hiểu</button><button class="mode-button" data-quiz-filter="advanced">Vận dụng, phân tích</button></div>
+        <div id="quizContainer"></div>
+      </div>
+    </div>
+  </section>
+  <div class="footer-note">Mô phỏng giáo dục dựa trên phương trình khí lí tưởng. Các chấm chuyển động không biểu diễn số phân tử thật.</div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const R=8.314462618;
+const $=id=>document.getElementById(id);
+const state={
+ started:false,paused:false,currentC:20,targetC:20,stable:true,mode:"guided",
+ base:{p:101.3,v:30,t:20},samples:[],moleculesOn:true,zoom:1,chartZoom:1,
+ chart:"volumeK",showTheory:true,showFit:true,transition:null,toastTimer:null,
+ quizFilter:"all",quizIndex:0,quizAnswered:false,quizScores:{}
+};
+const moleculeList=Array.from({length:28},()=>({x:Math.random(),y:Math.random(),vx:(Math.random()-.5)*.75,vy:(Math.random()-.5)*.75,r:2.1+Math.random()*1.8}));
+function physics(c){
+ const T=c+273.15;
+ const v=state.base.v*T/(state.base.t+273.15);
+ const pPa=state.base.p*1000;
+ const n=pPa*(state.base.v*1e-6)/(R*(state.base.t+273.15));
+ return {c:c,T:T,v:v,p:state.base.p,n:n,ratio:v/T,piston:(v/state.base.v)*30};
+}
+function fmt(n,d=2){return Number(n).toLocaleString("vi-VN",{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtSmart(n,d=2){return Number(n).toLocaleString("vi-VN",{maximumFractionDigits:d});}
+function showToast(message){
+ const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(state.toastTimer);
+ state.toastTimer=setTimeout(()=>el.classList.remove("show"),2600);
+}
+function setStatus(){
+ const txt=state.paused?"Đang tạm dừng":!state.started?"Chưa bắt đầu":state.stable?"Đã cân bằng nhiệt":"Đang cân bằng nhiệt";
+ $("statusText").textContent=txt;
+ $("equilibriumBadge").textContent=txt;
+ $("equilibriumBadge").classList.toggle("pending",!state.started||state.paused||!state.stable);
+ $("statusDot").style.background=state.paused?"#f2c05b":(!state.started?"#adc0cf":state.stable?"#9ce6c9":"#f5c56f");
+ $("readStable").textContent=state.paused?"Tạm dừng":state.stable?"Ổn định":"Đang đổi nhiệt";
+ $("recordBtn").disabled=!state.started||state.paused||!state.stable;
+ $("measureBtn").disabled=!state.started||state.paused;
+ $("pauseBtn").disabled=!state.started||state.paused;
+ $("resumeBtn").disabled=!state.paused;
+}
+function updateControls(){
+ const active=state.started;
+ $("startBtn").disabled=active;
+ $("tempSlider").disabled=!active||state.paused;
+ $("tempInput").disabled=!active||state.paused;
+ document.querySelectorAll(".quick").forEach(b=>b.disabled=!active||state.paused);
+ $("heatBtn").disabled=!active||state.paused;
+ $("coolBtn").disabled=!active||state.paused;
+ $("initialPressure").disabled=active;
+ $("initialVolume").disabled=active;
+ $("initialTemp").disabled=active;
+ $("applySettings").disabled=active;
+ $("settingsState").textContent=active?"Đặt lại để chỉnh thông số":"Có thể chỉnh trước khi bắt đầu";
+ $("dataMode").disabled=state.samples.length>0;
+}
+function updateReadings(){
+ const q=physics(state.currentC);
+ $("readC").textContent=fmt(state.currentC,1);
+ $("readK").textContent=fmt(q.T,2);
+ $("readV").textContent=fmt(q.v,2);
+ $("readP").textContent=fmt(q.p,1);
+ $("readN").textContent=fmt(q.n,5);
+ $("readRatio").textContent=fmt(q.ratio,4);
+ $("readPiston").textContent=fmt(q.piston,1);
+ $("targetLabel").textContent=fmt(state.targetC,1)+" °C";
+ $("tempSlider").value=state.targetC;
+ $("tempInput").value=state.targetC;
+ $("reportSettings").textContent=fmt(state.base.p,1)+" kPa · "+fmt(state.base.v,2)+" mL · "+fmt(state.base.t,1)+"°C";
+ updateControls();setStatus();updateModeGuide();renderAnalysis();renderCharts();renderScene();
+}
+function setTemperature(value){
+ if(!state.started){showToast("Hãy bắt đầu thí nghiệm trước khi thay đổi nhiệt độ.");return;}
+ if(state.paused){showToast("Hãy tiếp tục thí nghiệm trước khi thay đổi nhiệt độ.");return;}
+ const c=Math.max(0,Math.min(80,Number(value)));
+ if(!Number.isFinite(c))return;
+ state.targetC=c;state.stable=false;
+ const now=performance.now();
+ state.transition={from:state.currentC,to:c,start:now,duration:650+Math.abs(c-state.currentC)*32};
+ updateReadings();
+}
+function begin(){
+ state.started=true;state.paused=false;state.currentC=state.base.t;state.targetC=state.base.t;state.stable=true;state.transition=null;
+ updateReadings();showToast("Thí nghiệm đã bắt đầu. Hãy ghi trạng thái ban đầu.");
+}
+function applySettings(){
+ const p=Number($("initialPressure").value),v=Number($("initialVolume").value),t=Number($("initialTemp").value);
+ if(!(p>=50&&p<=300&&v>=5&&v<=100&&t>=0&&t<=80)){showToast("Thông số chưa hợp lệ. Kiểm tra áp suất, thể tích và nhiệt độ.");return;}
+ if(state.started){showToast("Hãy đặt lại thí nghiệm trước khi thay thông số.");return;}
+ state.base={p:p,v:v,t:t};state.currentC=t;state.targetC=t;
+ $("tempSlider").value=t;$("tempInput").value=t;
+ updateReadings();showToast("Đã áp dụng thông số ban đầu.");
+}
+function reset(){
+ state.started=false;state.paused=false;state.samples=[];
+ state.currentC=state.base.t;state.targetC=state.base.t;state.stable=true;state.transition=null;
+ $("tempSlider").value=state.base.t;$("tempInput").value=state.base.t;
+ renderTable();updateReadings();showToast("Thí nghiệm đã được đặt lại.");
+}
+function pause(){
+ if(!state.started||state.paused)return;
+ state.paused=true;state.pausedAt=performance.now();updateReadings();
+}
+function resume(){
+ if(!state.paused)return;
+ const elapsed=performance.now()-state.pausedAt;
+ if(state.transition)state.transition.start+=elapsed;
+ state.paused=false;updateReadings();
+}
+function measure(){
+ if(!state.started){showToast("Hãy bắt đầu thí nghiệm trước khi đo.");return;}
+ if(!state.stable){showToast("Đợi nhiệt độ khí ổn định rồi hãy đo.");return;}
+ const q=physics(state.currentC);
+ showToast("Thể tích hiện tại: "+fmt(q.v,2)+" mL.");
+}
+function noise(magnitude){return (Math.random()*2-1)*magnitude;}
+function record(){
+ if(!state.started||state.paused||!state.stable){showToast("Chỉ có thể ghi số liệu khi thí nghiệm ổn định.");return;}
+ const ideal=physics(state.currentC);
+ let c=ideal.c,v=ideal.v,p=ideal.p;
+ if($("dataMode").value==="experimental"){
+  c=Math.max(0,Math.min(80,Math.round((c+noise(.15))*10)/10));
+  v=Math.max(.01,Math.round((v+noise(.05))*10)/10);
+  p=Math.round((p+noise(.04))*10)/10;
+ }
+ const T=c+273.15;
+ state.samples.push({id:Date.now()+Math.random(),index:state.samples.length+1,c:c,T:T,v:v,p:p,ratio:v/T,idealC:ideal.c,idealT:ideal.T,idealV:ideal.v,mode:$("dataMode").value});
+ renderTable();updateControls();renderCharts();renderAnalysis();showToast("Đã ghi phép đo số "+state.samples.length+".");
+}
+function deleteSample(id){
+ state.samples=state.samples.filter(x=>x.id!==id);state.samples.forEach((s,i)=>s.index=i+1);
+ renderTable();updateControls();renderCharts();renderAnalysis();
+}
+function renderTable(){
+ const body=$("dataBody");
+ $("sampleCount").textContent=state.samples.length+" phép đo";
+ if(!state.samples.length){
+  body.innerHTML='<tr class="empty-row"><td colspan="7">Chưa có số liệu. Bắt đầu thí nghiệm, chọn nhiệt độ và ghi phép đo đầu tiên.</td></tr>';
+ }else{
+  body.innerHTML=state.samples.map(s=>'<tr><td>'+s.index+'</td><td>'+fmt(s.c,1)+(s.mode==="experimental"?' <small>ĐN</small>':'')+'</td><td>'+fmt(s.T,2)+'</td><td>'+fmt(s.v,2)+'</td><td>'+fmt(s.p,1)+'</td><td>'+fmt(s.ratio,5)+'</td><td><button class="button icon small warn" data-delete="'+s.id+'" title="Xóa phép đo '+s.index+'" aria-label="Xóa phép đo '+s.index+'">×</button></td></tr>').join("");
+  body.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>deleteSample(Number(b.dataset.delete))));
+ }
+ if(state.samples.length){
+  const ratios=state.samples.map(s=>s.ratio),mean=ratios.reduce((a,b)=>a+b,0)/ratios.length;
+  const spread=mean===0?0:(Math.max(...ratios)-Math.min(...ratios))/mean*100;
+  $("meanRatio").textContent=fmt(mean,5)+" mL/K";
+  $("ratioSpread").textContent=fmt(spread,2)+"%";
+  $("reportDataState").textContent="Đã ghi "+state.samples.length+" phép đo ("+(state.samples.some(s=>s.mode==="experimental")?"có số liệu cảm biến":"chế độ lí tưởng")+").";
+ }else{
+  $("meanRatio").textContent="—";$("ratioSpread").textContent="—";
+  $("reportDataState").textContent="Chưa có phép đo; báo cáo sẽ ghi đúng trạng thái dữ liệu hiện tại.";
+ }
+}
+function csvEscape(value){return '"'+String(value).replace(/"/g,'""')+'"';}
+function exportCsv(){
+ if(!state.samples.length){showToast("Chưa có số liệu để xuất.");return;}
+ const rows=[["Lần đo","Nhiệt độ (°C)","Nhiệt độ (K)","Thể tích (mL)","Áp suất (kPa)","V/T (mL/K)","Chế độ"]];
+ state.samples.forEach(s=>rows.push([s.index,s.c.toFixed(1),s.T.toFixed(2),s.v.toFixed(2),s.p.toFixed(1),s.ratio.toFixed(6),s.mode==="ideal"?"Lí tưởng":"Thực nghiệm"]));
+ const csv="\uFEFF"+rows.map(r=>r.map(csvEscape).join(",")).join("\r\n");
+ download(new Blob([csv],{type:"text/csv;charset=utf-8"}),"so-lieu-dinh-luat-charles.csv");
+}
+function download(blob,name){
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function linearFit(points){
+ if(points.length<2)return null;
+ const n=points.length,sx=points.reduce((a,p)=>a+p.x,0),sy=points.reduce((a,p)=>a+p.y,0);
+ const sxx=points.reduce((a,p)=>a+p.x*p.x,0),sxy=points.reduce((a,p)=>a+p.x*p.y,0);
+ const d=n*sxx-sx*sx;if(Math.abs(d)<1e-12)return null;
+ const a=(n*sxy-sx*sy)/d,b=(sy-a*sx)/n;
+ return {a:a,b:b};
+}
+function drawChart(){
+ const c=$("chart"),rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+ if(!rect.width||!rect.height)return;
+ c.width=Math.round(rect.width*dpr);c.height=Math.round(rect.height*dpr);
+ const ctx=c.getContext("2d");ctx.scale(dpr,dpr);const w=rect.width,h=rect.height;
+ ctx.clearRect(0,0,w,h);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);
+ const left=58,right=18,top=20,bottom=43,pw=w-left-right,ph=h-top-bottom;
+ const plot={x:left,y:top,w:pw,h:ph};
+ let xMin,xMax,yMin,yMax,xLabel,yLabel,points=[],theoryFn,fitPoints;
+ const maxZoom=state.chartZoom;
+ if(state.chart==="volumeK"){
+  xMin=313.15-(40/maxZoom);xMax=313.15+(40/maxZoom);
+  yMin=state.base.v*(xMin)/(state.base.t+273.15)*.86;yMax=state.base.v*(xMax)/(state.base.t+273.15)*1.14;
+  xLabel="Nhiệt độ tuyệt đối (K)";yLabel="Thể tích (mL)";
+  points=state.samples.map(s=>({x:s.T,y:s.v}));
+  theoryFn=x=>state.base.v*x/(state.base.t+273.15);
+  fitPoints=points;
+ }else if(state.chart==="volumeC"){
+  xMin=-280;xMax=80;
+  if(maxZoom>1){const span=360/maxZoom;xMin=-273.15-span*.02;xMax=xMin+span;}
+  yMin=-Math.max(1,state.base.v*.03);yMax=state.base.v*(xMax+273.15)/(state.base.t+273.15)*1.16;
+  xLabel="Nhiệt độ Celsius (°C)";yLabel="Thể tích (mL)";
+  points=state.samples.map(s=>({x:s.c,y:s.v}));
+  theoryFn=x=>state.base.v*(x+273.15)/(state.base.t+273.15);
+  fitPoints=points;
+ }else{
+  xMin=313.15-(40/maxZoom);xMax=313.15+40/maxZoom;
+  const target=state.base.v/(state.base.t+273.15);
+  const ratios=state.samples.map(s=>s.ratio);
+  yMin=ratios.length?Math.min(target,...ratios)*.96:target*.96;
+  yMax=ratios.length?Math.max(target,...ratios)*1.04:target*1.04;
+  if(yMax-yMin<.00001){yMin-=.00001;yMax+=.00001;}
+  xLabel="Nhiệt độ tuyệt đối (K)";yLabel="Tỉ số V/T (mL/K)";
+  points=state.samples.map(s=>({x:s.T,y:s.ratio}));
+  theoryFn=x=>target;
+  fitPoints=null;
+ }
+ if(!(yMax>yMin)){yMax=yMin+1;}
+ const X=x=>plot.x+(x-xMin)/(xMax-xMin)*plot.w;
+ const Y=y=>plot.y+plot.h-(y-yMin)/(yMax-yMin)*plot.h;
+ ctx.strokeStyle="#e9eff3";ctx.lineWidth=1;ctx.fillStyle="#748a9b";ctx.font="10px Segoe UI,Arial";
+ for(let i=0;i<=4;i++){
+  const xv=xMin+(xMax-xMin)*i/4,px=X(xv);
+  ctx.beginPath();ctx.moveTo(px,plot.y);ctx.lineTo(px,plot.y+plot.h);ctx.stroke();
+  ctx.textAlign="center";ctx.fillText(fmtSmart(xv,state.chart==="volumeC"?0:1),px,plot.y+plot.h+16);
+  const yv=yMin+(yMax-yMin)*i/4,py=Y(yv);
+  ctx.beginPath();ctx.moveTo(plot.x,py);ctx.lineTo(plot.x+plot.w,py);ctx.stroke();
+  ctx.textAlign="right";ctx.fillText(fmtSmart(yv,state.chart==="ratio"?4:1),plot.x-8,py+3);
+ }
+ ctx.strokeStyle="#9fb1bd";ctx.beginPath();ctx.moveTo(plot.x,plot.y);ctx.lineTo(plot.x,plot.y+plot.h);ctx.lineTo(plot.x+plot.w,plot.y+plot.h);ctx.stroke();
+ ctx.fillStyle="#466276";ctx.font="11px Segoe UI,Arial";ctx.textAlign="center";ctx.fillText(xLabel,plot.x+plot.w/2,h-7);
+ ctx.save();ctx.translate(13,plot.y+plot.h/2);ctx.rotate(-Math.PI/2);ctx.fillText(yLabel,0,0);ctx.restore();
+ if(state.showTheory){
+  ctx.strokeStyle=state.chart==="ratio"?"#8658b4":"#159aa1";ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let i=0;i<=120;i++){const x=xMin+(xMax-xMin)*i/120,y=theoryFn(x);if(i===0)ctx.moveTo(X(x),Y(y));else ctx.lineTo(X(x),Y(y));}
+  ctx.stroke();
+ }
+ let fit=null;
+ if(state.chart!=="ratio"&&state.showFit&&fitPoints&&fitPoints.length>=2){
+  fit=linearFit(fitPoints);if(fit){ctx.strokeStyle="#ed9c35";ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.beginPath();ctx.moveTo(X(xMin),Y(fit.a*xMin+fit.b));ctx.lineTo(X(xMax),Y(fit.a*xMax+fit.b));ctx.stroke();ctx.setLineDash([]);}
+ }
+ points.forEach(p=>{
+  if(p.x<xMin||p.x>xMax||p.y<yMin||p.y>yMax)return;
+  ctx.beginPath();ctx.arc(X(p.x),Y(p.y),4,0,Math.PI*2);ctx.fillStyle="#2678bd";ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=1.3;ctx.stroke();
+ });
+ const eq=$("fitEquation");
+ if(state.chart==="ratio")eq.textContent=points.length?"Trung bình V/T = "+fmt(points.reduce((a,p)=>a+p.y,0)/points.length,5)+" mL/K":"Chưa có điểm đo.";
+ else if(fit)eq.textContent="V = "+fmt(fit.a,5)+"T + "+fmt(fit.b,3)+" (hồi quy từ "+points.length+" điểm)";
+ else eq.textContent="Cần ít nhất 2 điểm đo để vẽ hồi quy.";
+}
+function renderCharts(){if(typeof requestAnimationFrame==="function")requestAnimationFrame(drawChart);}
+function renderAnalysis(){
+ const target=state.base.v/(state.base.t+273.15),items=[];
+ if(!state.samples.length){
+  items.push(["Chưa có phép đo","Bắt đầu thí nghiệm và ghi ít nhất hai nhiệt độ ổn định để phân tích xu hướng và hồi quy."]);
+  items.push(["Dự đoán lí thuyết","V/T = "+fmt(target,5)+" mL/K. Khi tăng nhiệt độ tuyệt đối, thể tích khí tăng theo tỉ lệ thuận nếu áp suất không đổi."]);
+ }else{
+  const first=state.samples[0],last=state.samples[state.samples.length-1];
+  const mean=state.samples.reduce((a,s)=>a+s.ratio,0)/state.samples.length;
+  const spread=(Math.max(...state.samples.map(s=>s.ratio))-Math.min(...state.samples.map(s=>s.ratio)))/(mean||1)*100;
+  const increasing=last.c>first.c, volumeTrend=last.v>first.v?"tăng":last.v<first.v?"giảm":"không đổi đáng kể";
+  items.push(["Quan hệ nhiệt độ – thể tích",state.samples.length<2?"Đã có một phép đo; cần thêm phép đo ở nhiệt độ khác để so sánh.":"Trong các phép đo hiện có, khi nhiệt độ "+(increasing?"tăng":"thay đổi")+" thì thể tích "+volumeTrend+"."]);
+  items.push(["Tỉ số V/T","Giá trị trung bình "+fmt(mean,5)+" mL/K; độ lệch tương đối giữa các phép đo "+fmt(spread,2)+"%."]);
+  items.push(["Đồ thị V theo T","Đồ thị theo Kelvin có dạng "+(state.samples.length>=2?"gần đường thẳng; hồi quy được cập nhật theo số liệu đo.":"chưa đủ điểm để xác định xu hướng.")]);
+  items.push(["Kết luận theo dữ liệu",state.samples.length<2?"Chưa đủ dữ liệu để kết luận; hãy đo ở ít nhất hai nhiệt độ khác nhau.":(spread<2?"Số liệu phù hợp với định luật Charles trong giới hạn sai số đã ghi.":"Tỉ số V/T dao động rõ; kết quả chưa xác nhận tốt định luật Charles. Hãy kiểm tra cân bằng nhiệt và sai số cảm biến.")]);
+ }
+ items.push(["Vì sao dùng Kelvin?","Tỉ lệ V/T có ý nghĩa với nhiệt độ tuyệt đối; Celsius có gốc tùy chọn và không thể dùng trực tiếp trong tỉ số này."]);
+ items.push(["Vì sao giữ áp suất không đổi?","Định luật Charles mô tả quan hệ V–T khi lượng khí và áp suất không đổi; nếu p thay đổi, thể tích còn phụ thuộc vào áp suất."]);
+ $("analysisBox").innerHTML=items.map(x=>'<div class="analysis-item"><div class="analysis-mark">✓</div><div><strong>'+x[0]+'</strong>'+x[1]+'</div></div>').join("");
+ $("reportAnalysis").innerHTML=items.map(x=>'<div class="analysis-item"><div class="analysis-mark">✓</div><div><strong>'+x[0]+'</strong>'+x[1]+'</div></div>').join("");
+}
+function sceneDraw(){
+ const canvas=$("scene"),rect=canvas.getBoundingClientRect();if(!rect.width||!rect.height)return;
+ const dpr=window.devicePixelRatio||1;canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+ const ctx=canvas.getContext("2d");ctx.setTransform(dpr*rect.width/920,0,0,dpr*rect.height/520,0,0);
+ ctx.clearRect(0,0,920,520);
+ ctx.save();ctx.translate(460,260);ctx.scale(state.zoom,state.zoom);ctx.translate(-460,-260);
+ const q=physics(state.currentC),gasBase=382,gasTop=gasBase-Math.max(58,Math.min(254,q.v/75*254));
+ ctx.fillStyle="#f8fcfe";ctx.fillRect(0,0,920,520);
+ // Mặt bàn và giá đỡ
+ ctx.fillStyle="#d8e5eb";ctx.fillRect(70,438,780,12);ctx.fillStyle="#a9bdc8";ctx.fillRect(90,450,18,30);ctx.fillRect(812,450,18,30);
+ ctx.fillStyle="#7c94a2";ctx.fillRect(280,44,12,394);ctx.fillRect(625,44,12,394);ctx.fillRect(280,44,357,12);
+ ctx.fillStyle="#648393";ctx.fillRect(272,423,373,12);
+ // Bồn điều nhiệt
+ ctx.fillStyle="#d8f1f6";ctx.strokeStyle="#71b4c9";ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(310,123,281,303,22);ctx.fill();ctx.stroke();
+ const waveY=153+Math.sin(performance.now()/700)*2;
+ ctx.fillStyle="#86d0e4";ctx.fillRect(315,waveY,271,267);
+ ctx.globalAlpha=.35;ctx.fillStyle="#fff";for(let i=0;i<5;i++){ctx.beginPath();ctx.ellipse(340+i*52,waveY+13+Math.sin(performance.now()/460+i)*3,20,3,0,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+ // Xi lanh thủy tinh
+ ctx.fillStyle="#ffffffb8";ctx.strokeStyle="#6d9bac";ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(365,70,170,322,18);ctx.fill();ctx.stroke();
+ // Khí trong xi lanh
+ ctx.save();ctx.beginPath();ctx.rect(372,gasTop,156,gasBase-gasTop-5);ctx.clip();
+ const grad=ctx.createLinearGradient(372,gasTop,528,gasBase);grad.addColorStop(0,"#dbf2fc");grad.addColorStop(1,"#a5dcf2");ctx.fillStyle=grad;ctx.fillRect(372,gasTop,156,gasBase-gasTop);
+ if(state.moleculesOn){
+  const tempScale=Math.sqrt((state.currentC+273.15)/(state.base.t+273.15));
+  moleculeList.forEach(m=>{
+   const px=378+m.x*144,py=gasTop+8+m.y*Math.max(8,gasBase-gasTop-18);
+   ctx.beginPath();ctx.arc(px,py,m.r,0,Math.PI*2);ctx.fillStyle="#1687bd";ctx.fill();
+   if(!state.paused){m.x+=m.vx*tempScale*.006;m.y+=m.vy*tempScale*.006;
+    if(m.x<.04||m.x>.96)m.vx*=-1;if(m.y<.04||m.y>.96)m.vy*=-1;
+    m.x=Math.max(.035,Math.min(.965,m.x));m.y=Math.max(.035,Math.min(.965,m.y));}
+  });
+ }
+ ctx.restore();
+ // vạch chia trên xi lanh
+ ctx.strokeStyle="#548293";ctx.lineWidth=2;
+ for(let i=0;i<=10;i++){const y=gasBase-i*28;ctx.beginPath();ctx.moveTo(538,y);ctx.lineTo(538+(i%2===0?17:9),y);ctx.stroke();if(i%2===0){ctx.fillStyle="#537686";ctx.font="11px Segoe UI";ctx.textAlign="left";ctx.fillText(String(i*5)+" mL",559,y+4);}}
+ // pít-tông và cần
+ ctx.fillStyle="#728e9e";ctx.strokeStyle="#4c6f80";ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(359,gasTop-11,182,20,5);ctx.fill();ctx.stroke();
+ ctx.fillStyle="#537585";ctx.fillRect(438,gasTop-82,24,72);ctx.fillStyle="#8ca7b5";ctx.fillRect(425,gasTop-88,50,9);
+ // Đồng hồ áp suất
+ ctx.fillStyle="#fff";ctx.strokeStyle="#4c7788";ctx.lineWidth=4;ctx.beginPath();ctx.arc(704,113,48,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.fillStyle="#244a5e";ctx.font="bold 13px Segoe UI";ctx.textAlign="center";ctx.fillText("ÁP SUẤT",704,103);ctx.font="bold 15px Segoe UI";ctx.fillText(fmt(q.p,1),704,126);ctx.font="10px Segoe UI";ctx.fillText("kPa",704,143);
+ ctx.strokeStyle="#e29b38";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(704,116);ctx.lineTo(728,92);ctx.stroke();ctx.fillStyle="#e29b38";ctx.beginPath();ctx.arc(704,116,4,0,Math.PI*2);ctx.fill();
+ // Nhiệt kế
+ ctx.fillStyle="#fff";ctx.strokeStyle="#4c7788";ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(704,193,30,158,14);ctx.fill();ctx.stroke();
+ ctx.fillStyle="#e57959";ctx.beginPath();ctx.roundRect(715,209,8,116,4);ctx.fill();ctx.beginPath();ctx.arc(719,333,13,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#284c5e";ctx.font="bold 12px Segoe UI";ctx.textAlign="center";ctx.fillText("NHIỆT KẾ",719,178);ctx.font="bold 13px Segoe UI";ctx.fillText(fmt(state.currentC,1)+"°C",719,373);
+ // Bộ gia nhiệt và làm lạnh
+ ctx.fillStyle="#fff3dd";ctx.strokeStyle="#e6a23b";ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(120,245,120,104,14);ctx.fill();ctx.stroke();
+ ctx.fillStyle="#ad7222";ctx.font="bold 12px Segoe UI";ctx.textAlign="center";ctx.fillText("BỘ GIA NHIỆT",180,265);
+ ctx.strokeStyle="#eaa23f";ctx.lineWidth=4;ctx.beginPath();for(let i=0;i<4;i++){const y=282+i*13;ctx.moveTo(141,y);ctx.bezierCurveTo(156,y-9,166,y+9,180,y);ctx.bezierCurveTo(194,y-9,205,y+9,219,y);}ctx.stroke();
+ ctx.fillStyle="#eaf5ff";ctx.strokeStyle="#7aaad2";ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(120,365,120,49,12);ctx.fill();ctx.stroke();
+ ctx.fillStyle="#396c92";ctx.font="bold 11px Segoe UI";ctx.fillText("BỘ LÀM LẠNH",180,385);ctx.font="18px Segoe UI";ctx.fillText("❄",180,406);
+ // Labels
+ ctx.fillStyle="#294c5e";ctx.font="bold 13px Segoe UI";ctx.textAlign="center";ctx.fillText("XI LANH THỦY TINH",450,54);
+ ctx.font="12px Segoe UI";ctx.fillText("BÌNH NƯỚC ĐIỀU NHIỆT",450,460);ctx.textAlign="left";ctx.fillText("Pít-tông chuyển động",647,235);
+ ctx.beginPath();ctx.moveTo(643,240);ctx.lineTo(526,gasTop-2);ctx.strokeStyle="#7796a5";ctx.lineWidth=1.5;ctx.stroke();
+ ctx.fillStyle="#284a5d";ctx.textAlign="left";ctx.font="bold 12px Segoe UI";ctx.fillText("Khí",388,gasTop+21);
+ ctx.font="11px Segoe UI";ctx.fillStyle="#557183";ctx.fillText("V = "+fmt(q.v,2)+" mL",388,gasTop+39);
+ ctx.restore();
+}
+function renderScene(){sceneDraw();}
+function renderFrame(now){
+ if(state.transition&&!state.paused){
+  const tr=state.transition,t=Math.min(1,(now-tr.start)/tr.duration),e=t*t*(3-2*t);
+  state.currentC=tr.from+(tr.to-tr.from)*e;
+  if(t>=1){state.currentC=tr.to;state.transition=null;state.stable=true;}
+  else state.stable=false;
+  updateReadings();
+ }
+ sceneDraw();
+ requestAnimationFrame(renderFrame);
+}
+function setMode(mode){
+ state.mode=mode;
+ document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+ $("modeDescription").style.display=mode==="challenge"?"none":"block";
+ if(mode==="guided")updateModeGuide();
+ else $("modeDescription").textContent=mode==="free"?"Tự chọn nhiệt độ từ 0°C đến 80°C, chờ cân bằng nhiệt và thu thập các phép đo theo kế hoạch của bạn.":"Giải các bài toán dự đoán ở phần thử thách bên dưới, sau đó điều khiển thiết bị để kiểm tra kết quả.";
+}
+function updateModeGuide(){
+ if(state.mode!=="guided")return;
+ const count=state.samples.length;
+ if(!state.started)$("modeDescription").textContent="Bước 1/4 — Kiểm tra thông số ban đầu, sau đó nhấn Bắt đầu thí nghiệm.";
+ else if(count===0)$("modeDescription").textContent="Bước 2/4 — Đo trạng thái ban đầu ở "+fmt(state.base.t,1)+"°C và ghi số liệu khi hệ thống ổn định.";
+ else if(count<5)$("modeDescription").textContent="Bước 3/4 — Chọn nhiệt độ khác, chờ báo Đã cân bằng nhiệt rồi đo và ghi số liệu. Hãy thu ít nhất 5 điểm.";
+ else $("modeDescription").textContent="Bước 4/4 — So sánh V/T, xem đồ thị và dùng số liệu đo để viết kết luận.";
+}
+const challenges=[
+ {title:"Tìm nhiệt độ để thể tích đạt 35 mL",unit:"°C",solve:()=>state.base.t+273.15*35/state.base.v-273.15,answerLabel:"Nhiệt độ cần thiết"},
+ {title:"Tính thể tích ở 50°C",unit:"mL",solve:()=>physics(50).v,answerLabel:"Thể tích dự đoán"},
+ {title:"Tìm nhiệt độ khi thể tích tăng 20%",unit:"°C",solve:()=>state.base.t+273.15*1.2-273.15,answerLabel:"Nhiệt độ cần thiết"},
+ {title:"Tính nhiệt độ khi thể tích bằng 34 mL",unit:"°C",solve:()=>state.base.t+273.15*34/state.base.v-273.15,answerLabel:"Nhiệt độ dự đoán"},
+ {title:"Dự đoán thể tích tại nhiệt độ bạn chọn",unit:"mL",solve:t=>physics(t).v,answerLabel:"Thể tích dự đoán",custom:true}
+];
+function challengeUi(){
+ const box=document.createElement("div");box.className="challenge-box";box.id="challengeBox";
+ box.innerHTML='<label for="challengeSelect">Nhiệm vụ</label><select id="challengeSelect"></select><label id="challengeInputLabel" for="challengeInput">Dự đoán</label><div class="field-row"><input type="number" id="challengeInput" step="0.1" value="35"><span id="challengeUnit">°C</span></div><button class="button teal small" id="checkChallenge" style="margin-top:8px">Kiểm tra dự đoán</button><div class="challenge-result" id="challengeResult"></div>';
+ const sel=box.querySelector("#challengeSelect");
+ challenges.forEach((c,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=c.title;sel.appendChild(o);});
+ function update(){const q=challenges[Number(sel.value)];box.querySelector("#challengeUnit").textContent=q.custom?"°C":q.unit;box.querySelector("#challengeInputLabel").textContent=q.custom?"Nhiệt độ bạn chọn (°C)":"Dự đoán ("+q.unit+")";box.querySelector("#challengeInput").value=q.custom?"40":q.unit==="mL"?"32":"35";}
+ sel.addEventListener("change",update);
+ box.querySelector("#checkChallenge").addEventListener("click",()=>{
+  const q=challenges[Number(sel.value)],given=Number(box.querySelector("#challengeInput").value);
+  if(!Number.isFinite(given)){box.querySelector("#challengeResult").textContent="Hãy nhập một giá trị dự đoán hợp lệ.";return;}
+  const actual=q.solve(q.custom?given:undefined),err=Math.abs(given-actual),tol=q.unit==="°C"?.7:.25;
+  const result=box.querySelector("#challengeResult");
+  result.textContent=(err<=tol?"Dự đoán chính xác. ":"Hãy xem lại phép tính. ")+q.answerLabel+": "+fmt(actual,2)+" "+q.unit+". Dùng T(K) = t(°C) + 273,15.";
+ });
+ return box;
+}
+const questions=[
+ {cat:"Nhận biết",q:"Trong định luật Charles, đại lượng nào được giữ không đổi?",o:["Áp suất và lượng khí","Thể tích và lượng khí","Nhiệt độ và áp suất","Khối lượng riêng và nhiệt độ"],a:0,e:"Định luật Charles áp dụng cho một lượng khí xác định ở áp suất không đổi."},
+ {cat:"Nhận biết",q:"Nhiệt độ tuyệt đối được đo bằng đơn vị nào?",o:["°C","K","Pa","J"],a:1,e:"Đơn vị nhiệt độ tuyệt đối trong hệ SI là Kelvin (K)."},
+ {cat:"Nhận biết",q:"Công thức chuyển Celsius sang Kelvin là gì?",o:["T = t − 273,15","T = t + 273,15","T = 273,15/t","T = t × 273,15"],a:1,e:"Cộng 273,15 vào nhiệt độ Celsius để được Kelvin."},
+ {cat:"Nhận biết",q:"Trong phương trình pV = nRT, R là gì?",o:["Khối lượng mol","Hằng số khí lí tưởng","Áp suất khí quyển","Tỉ số V/T"],a:1,e:"R = 8,314462618 J/(mol·K) là hằng số khí lí tưởng."},
+ {cat:"Nhận biết",q:"Khi đun nóng khí ở áp suất không đổi, pít-tông lí tưởng sẽ...",o:["Đi xuống","Đi lên","Đứng yên","Quay quanh xi lanh"],a:1,e:"Nhiệt độ tuyệt đối tăng làm thể tích tăng; pít-tông dịch chuyển lên."},
+ {cat:"Thông hiểu",q:"Vì sao không dùng trực tiếp nhiệt độ Celsius trong tỉ số V/T?",o:["Celsius không có đơn vị","Mốc 0°C không phải độ không tuyệt đối","Thể tích không đo được ở °C","Áp suất phụ thuộc Celsius"],a:1,e:"Tỉ lệ khí cần nhiệt độ tuyệt đối, có gốc tại độ không tuyệt đối."},
+ {cat:"Thông hiểu",q:"Nếu nhiệt độ Kelvin tăng gấp đôi ở áp suất không đổi thì thể tích khí lí tưởng...",o:["Giảm một nửa","Không đổi","Tăng gấp đôi","Tăng gấp bốn"],a:2,e:"V/T không đổi nên thể tích tỉ lệ thuận với nhiệt độ tuyệt đối."},
+ {cat:"Thông hiểu",q:"Vì sao cần giữ áp suất không đổi khi khảo sát định luật Charles?",o:["Để cô lập quan hệ giữa V và T","Để số mol tăng","Để ngăn nhiệt độ thay đổi","Để làm thể tích không đổi"],a:0,e:"Nếu áp suất thay đổi đồng thời thì không thể kiểm tra riêng quan hệ V–T."},
+ {cat:"Thông hiểu",q:"Trong mô hình này, pít-tông có tải trọng ngoài cố định nhằm mục đích gì?",o:["Tạo áp suất gần như không đổi","Làm khí mất nhiệt","Thay đổi lượng khí","Đo số mol trực tiếp"],a:0,e:"Tải trọng cố định tạo lực cân bằng gần ổn định, giữ áp suất khí không đổi."},
+ {cat:"Thông hiểu",q:"Tại cùng một áp suất và lượng khí, V/T có đặc điểm nào?",o:["Tăng đều theo thời gian","Không đổi","Bằng nhiệt độ Celsius","Luôn bằng 1"],a:1,e:"Định luật Charles phát biểu V/T là hằng số ở áp suất không đổi."},
+ {cat:"Vận dụng",q:"Một lượng khí có V₁ = 30 mL tại T₁ = 300 K. Thể tích ở 330 K là bao nhiêu?",o:["27,3 mL","30 mL","33 mL","36 mL"],a:2,e:"V₂ = V₁T₂/T₁ = 30×330/300 = 33 mL."},
+ {cat:"Vận dụng",q:"Nhiệt độ 40°C bằng bao nhiêu Kelvin?",o:["233,15 K","273,15 K","313,15 K","313 K chính xác"],a:2,e:"40 + 273,15 = 313,15 K."},
+ {cat:"Vận dụng",q:"Thể tích 24 mL ở 300 K được làm nóng đến 350 K. V mới là bao nhiêu?",o:["20,6 mL","24 mL","28 mL","35 mL"],a:2,e:"V₂ = 24×350/300 = 28 mL."},
+ {cat:"Vận dụng",q:"Một lượng khí có V/T = 0,10 mL/K. Thể tích tại 320 K là bao nhiêu?",o:["3,2 mL","32 mL","320 mL","0,32 mL"],a:1,e:"V = (V/T)×T = 0,10×320 = 32 mL."},
+ {cat:"Vận dụng",q:"Nếu thể tích tăng 10% ở áp suất không đổi thì nhiệt độ tuyệt đối...",o:["Giảm 10%","Tăng 10%","Không đổi","Tăng 100 K"],a:1,e:"V và T tỉ lệ thuận theo Kelvin nên phần trăm tăng bằng nhau."},
+ {cat:"Phân tích số liệu",q:"Ở 300 K đo được 30,0 mL; ở 330 K đo được 33,1 mL. Hai giá trị V/T gần bằng nhau không?",o:["Có, lần lượt khoảng 0,100 và 0,1003 mL/K","Không, một giá trị âm","Không thể tính V/T","Có, cả hai bằng 1"],a:0,e:"30/300 = 0,100; 33,1/330 ≈ 0,1003 mL/K, chênh lệch nhỏ."},
+ {cat:"Phân tích số liệu",q:"Các điểm V theo T(K) nằm gần một đường thẳng qua gốc tọa độ. Điều đó gợi ý điều gì?",o:["Áp suất thay đổi mạnh","V tỉ lệ thuận với T tuyệt đối","Lượng khí đang tăng","Nhiệt độ Celsius bằng Kelvin"],a:1,e:"Đường thẳng qua gốc cho thấy V/T gần như không đổi."},
+ {cat:"Phân tích số liệu",q:"Nếu V/T giảm rõ khi nhiệt độ tăng, nguyên nhân hợp lí nhất là gì?",o:["Sai số đo hoặc áp suất chưa được giữ ổn định","Kelvin luôn tăng nhanh hơn Celsius","R thay đổi theo thể tích","Định luật yêu cầu V/T giảm"],a:0,e:"Độ lệch có thể do sai số cảm biến, chưa cân bằng nhiệt hoặc áp suất biến thiên."},
+ {cat:"Hiện tượng thực tế",q:"Vì sao một quả bóng kín có thể xẹp bớt khi để trong môi trường lạnh?",o:["Khí lạnh co lại, áp suất ngoài ép bóng","Khí lạnh tự thoát qua cao su","Nhiệt độ làm số mol tăng","Thể tích luôn tăng khi lạnh"],a:0,e:"Khi nhiệt độ giảm, khí có xu hướng giảm thể tích; vỏ bóng mềm có thể co vào."},
+ {cat:"Hiện tượng thực tế",q:"Vì sao khinh khí cầu nóng có thể bay lên?",o:["Không khí nóng trong bóng nở ra, khối lượng riêng giảm","Không khí nóng nặng hơn","Áp suất khí quyển bằng không","Thể tích khí nóng luôn bằng không"],a:0,e:"Khí nóng nở ra; khối lượng riêng nhỏ hơn không khí xung quanh giúp lực đẩy nổi nâng bóng."}
+];
+function quizVisible(){
+ return questions.map((q,i)=>({q:q,i:i})).filter(x=>{
+  if(state.quizFilter==="basic")return x.q.cat==="Nhận biết"||x.q.cat==="Thông hiểu";
+  if(state.quizFilter==="advanced")return x.q.cat!=="Nhận biết"&&x.q.cat!=="Thông hiểu";
+  return true;
+ });
+}
+function renderQuiz(){
+ const visible=quizVisible();if(state.quizIndex>=visible.length)state.quizIndex=0;
+ const item=visible[state.quizIndex],q=item.q,box=$("quizContainer");
+ const scoreText=Object.keys(state.quizScores).length+"/20 câu đã chấm, đúng "+Object.values(state.quizScores).filter(Boolean).length;
+ $("quizProgress").textContent="Câu "+(state.quizIndex+1)+" / "+visible.length+" · "+q.cat+" · "+scoreText;
+ box.innerHTML='<div class="quiz-question">'+q.q+'</div><div class="quiz-options">'+q.o.map((x,i)=>'<label class="quiz-option"><input type="radio" name="quizAnswer" value="'+i+'"><span>'+x+'</span></label>').join("")+'</div><div class="actions" style="margin-top:8px"><button class="button small teal" id="submitQuiz">Chấm câu trả lời</button><button class="button small" id="nextQuiz">Câu tiếp theo</button></div><div class="quiz-feedback" id="quizFeedback"></div>';
+ box.querySelector("#submitQuiz").addEventListener("click",()=>{
+  const selected=box.querySelector('input[name="quizAnswer"]:checked'),f=box.querySelector("#quizFeedback");
+  if(!selected){f.textContent="Hãy chọn một đáp án trước khi chấm.";return;}
+  const correct=Number(selected.value)===q.a;f.textContent=(correct?"Chính xác. ":"Chưa đúng. Đáp án đúng: "+q.o[q.a]+". ")+q.e;
+  state.quizAnswered=true;state.quizScores[item.i]=correct;
+  const done=Object.keys(state.quizScores).length,right=Object.values(state.quizScores).filter(Boolean).length;
+  $("quizProgress").textContent="Câu "+(state.quizIndex+1)+" / "+visible.length+" · "+q.cat+" · "+done+"/20 câu đã chấm, đúng "+right;
+ });
+ box.querySelector("#nextQuiz").addEventListener("click",()=>{state.quizIndex=(state.quizIndex+1)%visible.length;state.quizAnswered=false;renderQuiz();});
+}
+function reportHtml(){
+ const rows=state.samples.length?state.samples.map(s=>"<tr><td>"+s.index+"</td><td>"+fmt(s.c,1)+"</td><td>"+fmt(s.T,2)+"</td><td>"+fmt(s.v,2)+"</td><td>"+fmt(s.p,1)+"</td><td>"+fmt(s.ratio,5)+"</td><td>"+(s.mode==="ideal"?"Lí tưởng":"Thực nghiệm")+"</td></tr>").join(""):'<tr><td colspan="7">Chưa ghi phép đo trong lần thí nghiệm này.</td></tr>';
+ const analysis=$("reportAnalysis").innerText.split("\n").filter(Boolean).map(t=>"<li>"+t.replace(/</g,"&lt;")+"</li>").join("");
+ const chartImg=$("chart").toDataURL("image/png");
+ return '<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Báo cáo thí nghiệm định luật Charles</title><style>body{font:15px/1.55 Arial,sans-serif;max-width:950px;margin:35px auto;padding:0 20px;color:#17364c}h1{color:#125980}h2{font-size:19px;margin-top:28px;border-bottom:1px solid #cbdde6;padding-bottom:5px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccdbe3;padding:7px;text-align:left}th{background:#eef6f9}img{max-width:100%}.meta{color:#526d7d}</style><h1>BÁO CÁO THÍ NGHIỆM: KHẢO SÁT ĐỊNH LUẬT CHARLES</h1><p class="meta">Thông số ban đầu: áp suất '+fmt(state.base.p,1)+' kPa; thể tích '+fmt(state.base.v,2)+' mL; nhiệt độ '+fmt(state.base.t,1)+'°C ('+fmt(state.base.t+273.15,2)+' K).</p><h2>Mục tiêu và cơ sở lí thuyết</h2><p>Khảo sát sự phụ thuộc của thể tích vào nhiệt độ tuyệt đối của một lượng khí xác định ở áp suất không đổi. V/T = hằng số; V₁/T₁ = V₂/T₂; T(K) = t(°C) + 273,15; pV = nRT, R = 8,314462618 J/(mol·K).</p><h2>Dụng cụ và cách tiến hành</h2><p>Mô hình gồm xi lanh, pít-tông có tải trọng cố định, bình nước điều nhiệt, bộ phận gia nhiệt/làm lạnh, nhiệt kế, áp kế và cảm biến thể tích. Thay đổi nhiệt độ, chờ khí ổn định, đo và ghi các đại lượng.</p><h2>Bảng số liệu</h2><table><thead><tr><th>Lần đo</th><th>°C</th><th>K</th><th>mL</th><th>kPa</th><th>V/T (mL/K)</th><th>Chế độ</th></tr></thead><tbody>'+rows+'</tbody></table><h2>Phân tích và kết luận</h2><ul>'+analysis+'</ul><h2>Đồ thị trạng thái hiện tại</h2><img alt="Đồ thị được chọn trong phần mềm" src="'+chartImg+'"><h2>Sai số và nguyên nhân</h2><p>'+($("dataMode").value==="experimental"?"Độ phân giải cảm biến và sai số ngẫu nhiên được đưa vào số liệu thực nghiệm; cân bằng nhiệt và áp suất cũng có thể gây sai lệch.":"Chế độ lí tưởng không thêm sai số cảm biến; kết quả mô tả mô hình khí lí tưởng.")+'</p></html>';
+}
+function exportReport(){
+ const html=reportHtml();download(new Blob([html],{type:"text/html;charset=utf-8"}),"bao-cao-dinh-luat-charles.html");
+}
+function init(){
+ $("startBtn").addEventListener("click",begin);
+ $("applySettings").addEventListener("click",applySettings);
+ $("resetBtn").addEventListener("click",reset);
+ $("heatBtn").addEventListener("click",()=>setTemperature(Math.min(80,state.targetC+5)));
+ $("coolBtn").addEventListener("click",()=>setTemperature(Math.max(0,state.targetC-5)));
+ $("pauseBtn").addEventListener("click",pause);$("resumeBtn").addEventListener("click",resume);
+ $("measureBtn").addEventListener("click",measure);$("recordBtn").addEventListener("click",record);
+ $("tempSlider").addEventListener("input",e=>{const v=Number(e.target.value);$("targetLabel").textContent=fmt(v,1)+" °C";$("tempInput").value=v;});
+ $("tempSlider").addEventListener("change",e=>setTemperature(e.target.value));
+ $("tempInput").addEventListener("change",e=>setTemperature(e.target.value));
+ document.querySelectorAll(".quick").forEach(b=>b.addEventListener("click",()=>setTemperature(b.dataset.temp)));
+ $("dataMode").addEventListener("change",()=>{showToast("Đã chọn "+($("dataMode").value==="ideal"?"chế độ lí tưởng.":"chế độ thực nghiệm có sai số cảm biến."));});
+ $("clearDataBtn").addEventListener("click",()=>{state.samples=[];renderTable();updateControls();renderCharts();renderAnalysis();showToast("Đã xóa toàn bộ số liệu.");});
+ $("exportCsvBtn").addEventListener("click",exportCsv);
+ $("printDataBtn").addEventListener("click",()=>window.print());
+ $("printReportBtn").addEventListener("click",()=>window.print());
+ $("exportReportBtn").addEventListener("click",exportReport);
+ $("helpBtn").addEventListener("click",()=>showToast("Bắt đầu → chọn nhiệt độ → chờ cân bằng → đo và ghi số liệu → xem đồ thị, phân tích."));
+ $("moleculeToggle").addEventListener("change",e=>{state.moleculesOn=e.target.checked;renderScene();});
+ $("zoomIn").addEventListener("click",()=>{state.zoom=Math.min(1.35,state.zoom+.1);renderScene();});
+ $("zoomOut").addEventListener("click",()=>{state.zoom=Math.max(.8,state.zoom-.1);renderScene();});
+ $("chartZoomIn").addEventListener("click",()=>{state.chartZoom=Math.min(2.5,state.chartZoom*1.25);renderCharts();});
+ $("chartZoomOut").addEventListener("click",()=>{state.chartZoom=Math.max(1,state.chartZoom/1.25);renderCharts();});
+ $("showTheory").addEventListener("change",e=>{state.showTheory=e.target.checked;renderCharts();});
+ $("showFit").addEventListener("change",e=>{state.showFit=e.target.checked;renderCharts();});
+ document.querySelectorAll("[data-chart]").forEach(b=>b.addEventListener("click",()=>{state.chart=b.dataset.chart;document.querySelectorAll("[data-chart]").forEach(x=>x.classList.toggle("active",x===b));renderCharts();}));
+ document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{setMode(b.dataset.mode);}));
+ document.querySelectorAll("[data-quiz-filter]").forEach(b=>b.addEventListener("click",()=>{state.quizFilter=b.dataset.quizFilter;state.quizIndex=0;document.querySelectorAll("[data-quiz-filter]").forEach(x=>x.classList.toggle("active",x===b));renderQuiz();}));
+ const cbox=challengeUi();$("modeDescription").after(cbox);
+ document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>{cbox.style.display=state.mode==="challenge"?"block":"none";}));
+ cbox.style.display="none";
+ window.addEventListener("resize",renderCharts);
+ renderTable();renderQuiz();setMode("guided");updateReadings();renderCharts();requestAnimationFrame(renderFrame);
+}
+init();
+})();
+</script>
+</body>
+</html>
+
